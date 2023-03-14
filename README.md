@@ -1,10 +1,8 @@
-Odoo
-====
 
-Example repository for Dolmen Consulting Group
----
+# Odoo - Example repository for Dolmen Consulting Group
 
-### Install WSL(Windows Subsystem for Linux)
+
+## Install WSL(Windows Subsystem for Linux)
 
 The Windows Subsystem for Linux (WSL) lets developers install a Linux distribution (such as Ubuntu, OpenSUSE, Kali, Debian, Arch Linux, etc) and use Linux applications, utilities, and Bash command-line tools directly on Windows, unmodified, without the overhead of a traditional virtual machine or dualboot setup.
 
@@ -13,8 +11,9 @@ The default distribution of Linux for WSL is Ubuntu, this is the one needed.
 https://learn.microsoft.com/en-us/windows/wsl/install
 
 Recommended tool: [Windows Terminal](https://apps.microsoft.com/store/detail/windows-terminal/9N0DX20HK701?hl=en-us&gl=us&rtc=1)
-
-### Install PostgreSQL in WSL
+</br>
+</br>
+## Install PostgreSQL in WSL
 Odoo needs a local PostgreSQL server running in order to work locally.
 
 To install one use the following commands.
@@ -39,8 +38,9 @@ sudo service postgresql status
 # If you want to stop postgresql use this command.
 sudo service postgresql stop
 ```
+</br>
 
-### Installing Odoo system dependencies in WSL
+## Installing Odoo system dependencies in WSL
 In order to compile and run Odoo we need to install some system dependencies.
 
 Here is the commands to install them.
@@ -54,14 +54,16 @@ sudo apt upgrade -y
 # This will install python, git and all needed libraries.
 sudo apt install git python3-dev python3-pip python3-wheel python3-venv build-essential libpq-dev libxslt-dev libzip-dev libldap2-dev libsasl2-dev libssl-dev -y
 ```
+</br>
 
-### Fork Odoo repository
+## Fork Odoo repository
 We will need to fork the Odoo repository.
 
 *needs more instructions*
 
+</br>
 
-### Install Odoo from source
+## Install Odoo from source
 In order to do this install we need to create a folder and then use git to get the source code.
 
 ```bash
@@ -72,8 +74,9 @@ cd ~/src
 # This will clone your fork from your github repository.
 git clone git@github.com:immutableant/odoo.git -b 15.0 --depth=1
 ```
+</br>
 
-### Branching
+## Branching
 With the git command we just runned we cloned into our computer the branch `15.0`. 
 
 We need to create a new branch from this branch in order to have a main branch that we can rebase when we need to get the latest updates from this branch.
@@ -84,9 +87,11 @@ Use the following commands to create this branch:
 ```bash
 git checkout -b dolmen-main
 ```
- This will create the branch and also checkout the branch for our next step.
+ This will create the branch and also checkout the branch.
 
-### Setting up Virtual Environment to prep for running Odoo
+</br>
+
+## Setting up Virtual Environment to prep for running Odoo
 Virtual environments is a tool that will allow us to install the Python libraries from requirements.txt in a private environment for our local Odoo install.
 
 This enviroments needs to be activated every time we open a new terminal window and want to run Odoo.
@@ -121,9 +126,122 @@ pip3 install -r ~/src/odoo/requirements.txt
 # Installs Odoo
 pip3 install -e ~/src/odoo
 ```
+</br>
 
-### Running Odoo
-*Still needs work*
+## Running Odoo
+First lets make sure Odoo is available by checking it's version wiht the following commnad, *make sure the virtual environment is activated first*
+```bash
+odoo --version
+```
+This should return: `Odoo Server 15.0`
+
+We can then move to the next step which is to create the database in Odoo. 
+
+There are two ways of doing of creating the database:
+- Via the web client
+- Via Command line
+
+For this guide we are gonna use the Command line way of creating the database, but I will also explain how to do so via the web client after.
+
+</br>
+
+### **Command line database creation**
+As a developer it is more convenient to create a database from the command line.
+
+To create it this way run the following command:
+```bash
+odoo -d odoo-15-local-db --stop-after-init
+```
+This command might take a couple of minutes while to finish. This will create a database named `odoo-15-local-db`
+
+We can ommit the option `--stop-after-init` if we want to have the instance run after database creation.
+
+This data base will start with demo data by default, this can be avoided by adding this option to the end `--without-demo=all`
+
+Once the database creation has finished we can then run Odoo with the following command:
+```bash
+odoo
+```
+After running this go to your browser and go to this url: `http://localhost:8069`. You should see the login screen of your local instance. The default administrator username and password is `admin`.
+
+With this we now have a local developer environment for Odoo 15.
+
+If you want to terminate the instance go to the terminal and press `Ctrl + C`
+
+</br>
+
+
+### **Web client database creation**
+This method creates the database when you run Odoo and access it for the first time. **This only works if there is no Odoo database already created.**
+Run the following command:
+```bash
+odoo
+```
+This should run your Odoo instance, you'll see the instance startup logs scrolling in the terminal.
+
+If you need to stop the install press `Ctrl + C` in the terminal and this will terminate it
+
+Next, you want to access this url `http://localhost:8069`
+
+It should load the create database wizard. In it you'll be given a random password for your local database or you can replace it with one of your choice, *make sure to remember this password as you'll needed to access your database*
+
+You'll also need to:
+
+- Enter a database name, ex: localOdooDB
+
+- Enter an Email address for the for the defaul administrator. Does not have to be an actual email. The default value is `admin`
+
+- Enter a password for the Admin, this is different than the passsword for the database and needs you also need to remember this value.
+
+- Select a language for the the database.
+
+- Select the country for the company defaults settings.
+
+- The Demo Data checkbox allows you install demo data in the instance so you can have some preloaded data on it instead of starting from scratch.
+
+Click the create database button to create the database. This can take a couple of minutes to complete. Once completed you'll get redirected to the login screen.
+
+</br>
+
+## Other handy information
+
+### Database manager
+You can access the database manager via this url: `http://localhost:8069/web/database/manager`
+
+### Database listing
+Use this commmand to list databases:
+```bash
+psql -l
+```
+
+### Create a copy of your database
+Run this command:
+```bash
+createDB --template=odoo-15-local-db odoo-15-local-db-copy
+```
+
+### Database deletion(or recreation)
+Use the following command to delete your database:
+```bash
+#### REMEMBER THIS CANNOT BE REVERTED SO ONLY RUN IF YOU ARE SURE YOU WANT TO DELETE IT ###
+dropdb odoo-15-local-db
+```
+
+If you want to recreate the database you could run this to delete and recreate:
+```bash
+dropdb odoo-15-local-db && odoo -d odoo-15-local-db --stop-after-init
+```
+
+</br>
+
+### Recommended software
+- VS Code. A light weight, modular, and free IDE. [link](https://code.visualstudio.com/)
+
+</br>
+
+### Recommended reading material and source for this mini guide
+- Odoo 15 Development Essentials. [link](https://www.packtpub.com/product/odoo-15-development-essentials-fifth-edition/9781800200067)
+
 
 *Original README*
 ______________
