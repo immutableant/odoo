@@ -26,11 +26,11 @@ sudo apt upgrade -y
 # This installs the posgresql server.
 sudo apt install postgresql postgresql-client
 
-# Creates a user db super user (only do this for your local).
-sudo su -c "createuser -s $USER" postgres
-
 # This commands starts the postgresql server, this command needs to be run every time you open the WSL terminal.
 sudo service postgresql start
+
+# Creates a user db super user (only do this for your local).
+sudo su -c "createuser -s $USER" postgres
 
 # If you need to check if postgresql is running use this commad.
 sudo service postgresql status
@@ -241,6 +241,93 @@ dropdb odoo-15-local-db && odoo -d odoo-15-local-db --stop-after-init
 
 ### Recommended reading material and source for this mini guide
 - Odoo 15 Development Essentials. [link](https://www.packtpub.com/product/odoo-15-development-essentials-fifth-edition/9781800200067)
+
+</br>
+
+# How to Add Submodules on Odoo.sh
+
+This guide explains how to add submodules to your Odoo.sh project both via the Odoo.sh platform and manually using Git.
+
+## 1. Adding Submodules via Odoo.sh
+
+### 1.1. Adding Submodules from Private Repositories
+
+If the submodule is in a private repository, follow these steps:
+
+1. In your Odoo.sh project dashboard, go to the "Settings" tab.
+2. Under the "Submodules" section, paste the **SSH URL of your private sub-repository** and click on "Add".
+3. Copy the generated **public SSH key**.
+4. Add the public key to your private repository as a deploy key:
+   - GitHub: Settings → Deploy keys → Add deploy key
+   - Bitbucket: Settings → Access keys → Add key
+   - GitLab: Settings → Repository → Deploy Keys
+   - Self-hosted: Append the key to the `git` user's `authorized_keys` file in its `.ssh` directory
+5. Odoo.sh will now be able to access the private repository's content and deploy your project, including the submodule.
+
+## 2. Adding Submodules Manually via Git
+
+To add submodules manually via Git, follow these steps:
+
+1. Add the submodule content to your local machine:
+
+```bash
+git submodule add -b 15.0 git@github.com:OCA/knowledge.git .
+```
+
+2. Commit the changes to your Odoo.sh repository and push the changes to the staging branch.
+3. Update the apps list in your Odoo instance, search for the individual modules from the submodule, and install them as needed.
+
+# Removing a Git Submodule
+
+This guide provides instructions on how to remove a Git submodule that was added to the root of your repository.
+
+## Prerequisites
+
+- A Git repository with a submodule added to the root using a command like: `git submodule add -b 15.0 git@github.com:OCA/knowledge.git .`
+
+## Steps
+
+Follow these steps to remove the submodule:
+
+1. **Deinitialize the submodule:**
+
+   Remove the submodule's entry from the `.gitmodules` and `.git/config` files, and remove the submodule's files:
+
+```bash
+git submodule deinit -f .
+```
+
+2. **Remove the submodule's directory:**
+
+   Since the submodule is in the root of your repository, remove the hidden `.git/modules` directory for the submodule:
+
+
+```bash
+rm -rf .git/modules/knowledge
+```
+
+
+3. **Remove the submodule's reference in the git index:**
+
+```bash
+git rm --cached knowledge
+```
+
+
+4. **Commit the changes:**
+
+Commit the changes to your repository:
+
+```bash
+git commit -m "Removed submodule knowledge"
+```
+
+After completing these steps, the submodule will be removed from your repository.
+
+
+
+
+
 
 
 *Original README*
